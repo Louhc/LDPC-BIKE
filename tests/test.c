@@ -70,7 +70,8 @@ int main(void)
             uint32_t dec_rc = 0;
 
             //Encapsulate
-            MEASURE("  encaps", res = static_cast<status_t>(crypto_kem_enc(ct.raw, k_enc.raw, pk.raw)););
+            // MEASURE("  encaps", res = static_cast<status_t>(crypto_kem_enc(ct.raw, k_enc.raw, pk.raw)););
+            res = static_cast<status_t>(crypto_kem_enc(ct.raw, k_enc.raw, pk.raw));
 
             if(res != SUCCESS)
             {
@@ -79,8 +80,10 @@ int main(void)
             }
 
             //Decapsulate
-            MEASURE("  decaps", dec_rc = crypto_kem_dec(k_dec.raw, ct.raw, sk.raw););
-
+            // MEASURE("  decaps", dec_rc = crypto_kem_dec(k_dec.raw, ct.raw, sk.raw););
+            dec_rc = crypto_kem_dec(k_dec.raw, ct.raw, sk.raw);
+            
+            printf( "%d : ", j );
             if (dec_rc != 0)
             {
                 MSG("Decoding failed after %d code tests and %d enc/dec tests!\n", i, j);
@@ -92,6 +95,7 @@ int main(void)
                     MSG("Success! decapsulated key is the same as encapsulated key!\n");
                 } else {
                     MSG("Failure! decapsulated key is NOT the same as encapsulated key!\n");
+            return 0;
                 }
             }
 
