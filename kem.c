@@ -300,6 +300,7 @@ int crypto_kem_dec(OUT unsigned char *ss,
     DMSG("  Decoding.\n");
     // rc = BGF_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
     rc = SPA_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
+    // rc = MS_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
 
     convertBinaryToByte(e_prime, e_tmp1, 2*R_BITS);
 

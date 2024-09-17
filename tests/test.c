@@ -95,7 +95,6 @@ int main(void)
                     MSG("Success! decapsulated key is the same as encapsulated key!\n");
                 } else {
                     MSG("Failure! decapsulated key is NOT the same as encapsulated key!\n");
-            return 0;
                 }
             }
 
