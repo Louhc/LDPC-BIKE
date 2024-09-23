@@ -290,12 +290,12 @@ double error_prob = 1. * T1 / N_BITS;
 double error_prob_llr = log((1 - error_prob) / error_prob);
 
 int pos[R_BITS][DV*2], S[R_BITS][DV*2];
-double M[R_BITS][DV*2], E[R_BITS][DV*2];
+double M[R_BITS][DV*2], E[R_BITS][DV*2], M_tmp[R_BITS][DV*2];
 double L[R_BITS*2];
 uint8_t ds[R_BITS];
 
-// Algorithm SPA - Sum-Product Decoder
-int SPA_decoder(uint8_t e[R_BITS*2],
+// Algorithm SP - Sum-Product Decoder
+int SP_decoder(uint8_t e[R_BITS*2],
     uint8_t s[R_BITS],
     uint32_t h0_compact[DV],
     uint32_t h1_compact[DV])
@@ -422,7 +422,7 @@ int MS_decoder(uint8_t e[R_BITS*2],
             L[i] = error_prob_llr;
         for ( int i = 0; i < R_BITS; ++i ){
             for ( int j = 0; j < DV * 2; ++j ){
-                M[i][j] = L[pos[i][j]];
+                M_tmp[i][j] = L[pos[i][j]];
                 L[pos[i][j]] += E[i][j];
             }
         }
@@ -432,8 +432,15 @@ int MS_decoder(uint8_t e[R_BITS*2],
         }
         for ( int i = R_BITS - 1; i >= 0; --i ){
             for ( int j = 0; j < DV * 2; ++j ){
-                M[i][j] += L[pos[i][j]];
+                M_tmp[i][j] += L[pos[i][j]];
                 L[pos[i][j]] += E[i][j];
+            }
+        }
+        for ( int i = 0; i < R_BITS; ++i ){
+            for ( int j = 0; j < DV * 2; ++j ){
+                // M[i][j] = M_tmp[i][j];
+                if ( M[i][j] * M_tmp[i][j] >= -1e-15 ) M[i][j] = M_tmp[i][j];
+                else M[i][j] = 0;
             }
         }
 
