@@ -271,7 +271,7 @@ int BGF_decoder(uint8_t e[R_BITS*2],
 
         BFIter(e, black, gray, s, T, h0_compact, h1_compact, h0_compact_col, h1_compact_col);
 
-        if (i == 1)
+        // if (i == 1)
         {
             BFMaskedIter(e, s, black, (DV+1)/2 + 1, h0_compact, h1_compact, h0_compact_col, h1_compact_col);
             BFMaskedIter(e, s, gray, (DV+1)/2 + 1, h0_compact, h1_compact, h0_compact_col, h1_compact_col);

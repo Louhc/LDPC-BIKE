@@ -32,5 +32,5 @@ bike-ldpc-test: $(SRC) *.h ldpc_tests/test.c
 clean:
 	rm -f PQCkemKAT_*
 	rm -f bike*
-	rm -f test_*
-
+	rm -f LDPC_test_*
+	rm -f output*

@@ -11,7 +11,7 @@
 #include <string.h>
 #include <math.h>
 
-const int MAXITER = 200;
+const int MAXITER = 100;
 double error_prob = 1. * T1 / N_BITS;
 double error_prob_llr = log((1 - error_prob) / error_prob);
 
@@ -88,11 +88,11 @@ int SP_decoder(uint8_t e[R_BITS*2],
         }
 
         if ( getHammingWeight(ds, R_BITS) == 0 ){
-            MSG("Iteration: %d\n", T);
+            printf("%d\n", T);
             return 0; // SUCCESS
         }
     }
-    MSG("Iteration: %d\n", T);
+    printf("%d\n", T);
 
     return 1; // FAILURE
 }
@@ -186,11 +186,11 @@ int MS_decoder(uint8_t e[R_BITS*2],
         }
 
         if ( getHammingWeight(ds, R_BITS) == 0 ){
-            MSG("Iteration: %d\n", T);
+            printf("%d\n", T);
             return 0; // SUCCESS
         }
     }
 
-    MSG("Iteration: %d\n", T);
+    printf("%d\n", T);
     return 1; // FAILURE
 }

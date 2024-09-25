@@ -61,15 +61,15 @@
 // select the max between a and b:
 #define MAX(a,b) ((a)>(b))?(a):(b)
 
-// -DR_BITS=9349ULL -DDV=142ULL -DT1=134ULL
+// -DR_BITS=9349ULL -DDV=71ULL -DT1=134ULL
 #ifdef R_BITS
 #undef PARAM64
 #undef PARAM96
 #undef PARAM128
-#define VAR_TH_FCT(x) 0
+#define VAR_TH_FCT(x) (MAX(13.530 + 0.0069722 * (x), 36))
 // Parameters for BGF Decoder:
 #define tau 3
-#define NbIter 5
+#define NbIter 100
 #endif
 
 // LEVEL-5 Security parameters:
@@ -135,7 +135,7 @@
 #define EDMSG(...)
 #define SEDMSG(...)
 #else
-#define MSG(...)     { printf(__VA_ARGS__); }
+#define MSG(...)     //{ printf(__VA_ARGS__); }
 #define DMSG(...)
 #define EDMSG(...)
 #define SEDMSG(...)
