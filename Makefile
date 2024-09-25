@@ -26,7 +26,11 @@ bike-demo-test: $(SRC) *.h tests/test.c
 bike-nist-kat: $(SRC) *.h FromNIST/*.h FromNIST/PQCgenKAT_kem.c
 	$(CC) $(CFLAGS) FromNIST/PQCgenKAT_kem.c $(SRC) $(INCLUDE) -DVERBOSE=$(VERBOSE) -DNIST_RAND=1 -o $@
 
+bike-ldpc-test: $(SRC) *.h ldpc_tests/test.c
+	$(CC) $(CFLAGS) ldpc_tests/test.c $(SRC) $(INCLUDE) -DVERBOSE=$(VERBOSE) -DNIST_RAND=1 -o $@
+
 clean:
 	rm -f PQCkemKAT_*
 	rm -f bike*
+	rm -f test_*
 

@@ -43,9 +43,9 @@
 ///////////////////////////////////////////
 
 // UNCOMMENT TO SELECT THE NIST SECURITY LEVEL 1, 3 OR 5:
-// #define PARAM64 // NIST LEVEL 1
+#define PARAM64 // NIST LEVEL 1
 // #define PARAM96 // NIST LEVEL 3
-#define PARAM128 // NIST LEVEL 5
+// #define PARAM128 // NIST LEVEL 5
 
 // UNCOMMENT TO ENABLE BANDWIDTH OPTIMISATION FOR BIKE-3:
 //#define BANDWIDTH_OPTIMIZED
@@ -60,6 +60,17 @@
 
 // select the max between a and b:
 #define MAX(a,b) ((a)>(b))?(a):(b)
+
+// -DR_BITS=9349ULL -DDV=142ULL -DT1=134ULL
+#ifdef R_BITS
+#undef PARAM64
+#undef PARAM96
+#undef PARAM128
+#define VAR_TH_FCT(x) 0
+// Parameters for BGF Decoder:
+#define tau 3
+#define NbIter 5
+#endif
 
 // LEVEL-5 Security parameters:
 #ifdef PARAM128

@@ -1,4 +1,4 @@
-#include "ext_decoder.h"+
+#include "ext_decoder.h"
 #include "decode.h"
 #include "utilities.h"
 
@@ -11,7 +11,7 @@
 #include <string.h>
 #include <math.h>
 
-const int MAXITER = 50;
+const int MAXITER = 200;
 double error_prob = 1. * T1 / N_BITS;
 double error_prob_llr = log((1 - error_prob) / error_prob);
 
@@ -19,6 +19,8 @@ int pos[R_BITS][DV*2], S[R_BITS][DV*2];
 double M[R_BITS][DV*2], E[R_BITS][DV*2], M_tmp[R_BITS][DV*2];
 double L[R_BITS*2];
 uint8_t ds[R_BITS];
+
+// int Convert( int x ){ if ( x == 0 ) return 0; else return R_BITS - x; }
 
 // Algorithm SP - Sum-Product Decoder
 int SP_decoder(uint8_t e[R_BITS*2],
@@ -38,7 +40,8 @@ int SP_decoder(uint8_t e[R_BITS*2],
         }
     }
 
-    for ( int T = 0; T < MAXITER; ++T ){
+    int T;
+    for ( T = 1; T <= MAXITER; ++T ){
 
         for ( int i = 0; i < R_BITS; ++i ){
             
@@ -84,9 +87,12 @@ int SP_decoder(uint8_t e[R_BITS*2],
             }
         }
 
-        if ( getHammingWeight(ds, R_BITS) == 0 )
+        if ( getHammingWeight(ds, R_BITS) == 0 ){
+            MSG("Iteration: %d\n", T);
             return 0; // SUCCESS
+        }
     }
+    MSG("Iteration: %d\n", T);
 
     return 1; // FAILURE
 }
@@ -110,7 +116,9 @@ int MS_decoder(uint8_t e[R_BITS*2],
         }
     }
 
-    for ( int T = 1; T <= MAXITER; ++T ){
+    int T;
+
+    for ( T = 1; T <= MAXITER; ++T ){
 
         double alpha = 1.0 - pow(2.0, -1.0 * T);
 
@@ -177,9 +185,12 @@ int MS_decoder(uint8_t e[R_BITS*2],
             }
         }
 
-        if ( getHammingWeight(ds, R_BITS) == 0 )
+        if ( getHammingWeight(ds, R_BITS) == 0 ){
+            MSG("Iteration: %d\n", T);
             return 0; // SUCCESS
+        }
     }
 
+    MSG("Iteration: %d\n", T);
     return 1; // FAILURE
 }
