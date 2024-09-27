@@ -15,19 +15,16 @@ const int MAXITER = 100;
 double error_prob = 1. * T1 / N_BITS;
 double error_prob_llr = log((1 - error_prob) / error_prob);
 
-int pos[R_BITS][DV*2], S[R_BITS][DV*2];
-double M[R_BITS][DV*2], E[R_BITS][DV*2], M_tmp[R_BITS][DV*2];
-double L[R_BITS*2];
-uint8_t ds[R_BITS];
-
-// int Convert( int x ){ if ( x == 0 ) return 0; else return R_BITS - x; }
-
 // Algorithm SP - Sum-Product Decoder
 int SP_decoder(uint8_t e[R_BITS*2],
     uint8_t s[R_BITS],
     uint32_t h0_compact[DV],
     uint32_t h1_compact[DV])
 {
+    int pos[R_BITS][DV*2], S[R_BITS][DV*2];
+    double M[R_BITS][DV*2], E[R_BITS][DV*2], M_tmp[R_BITS][DV*2];
+    double L[R_BITS*2];
+    uint8_t ds[R_BITS];
 
     memset(e, 0, R_BITS*2);
 
@@ -104,6 +101,10 @@ int MS_decoder(uint8_t e[R_BITS*2],
     uint32_t h0_compact[DV],
     uint32_t h1_compact[DV])
 {
+    int pos[R_BITS][DV*2], S[R_BITS][DV*2];
+    double M[R_BITS][DV*2], E[R_BITS][DV*2], M_tmp[R_BITS][DV*2];
+    double L[R_BITS*2];
+    uint8_t ds[R_BITS];
 
     memset(e, 0, R_BITS*2);
 
