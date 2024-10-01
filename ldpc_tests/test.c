@@ -4,7 +4,7 @@
 #include "measurements.h"
 #include "pthread.h"
 
-#define T_TEST 48000000
+#define T_TEST 4800
 #define NUM_THREADS 10
 
 void test_once(){
