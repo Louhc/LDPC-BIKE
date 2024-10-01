@@ -11,7 +11,7 @@
 #include <string.h>
 #include <math.h>
 
-const int MAXITER = 10;
+const int MAXITER = 100;
 double error_prob = 1. * T1 / N_BITS;
 double error_prob_llr = log((1 - error_prob) / error_prob);
 
