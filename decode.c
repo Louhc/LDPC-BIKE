@@ -46,6 +46,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
+
+#ifndef VAR_TH_FCT
+double VAR_TH_FCT( int x ){
+    double pi1 = (x + THR_X) / T1 / DV;
+    double pi0 = (DV * 2 * x - THR_X) / (N_BITS - T1) / DV;
+    // assert(pi1 >= pi0);
+    double T = ceil((log((N_BITS - T1) / T1) + DV * log((1 - pi0) / (1 - pi1))) / (log(pi1 / pi0) + log((1 - pi0) / (1 - pi1))));
+    // fprintf( stderr, "     %lf %lf %lf\n", pi0, pi1, T );
+    return fmax(T, DV / 2.0 + 1);
+}
+#endif
 
 // count number of 1's in tmp:
 uint32_t getHammingWeight(const uint8_t tmp[R_BITS], const uint32_t length)
@@ -271,14 +283,16 @@ int BGF_decoder(uint8_t e[R_BITS*2],
 
         BFIter(e, black, gray, s, T, h0_compact, h1_compact, h0_compact_col, h1_compact_col);
 
-        // if (i == 1)
+        if (i == 1)
         {
             BFMaskedIter(e, s, black, (DV+1)/2 + 1, h0_compact, h1_compact, h0_compact_col, h1_compact_col);
             BFMaskedIter(e, s, gray, (DV+1)/2 + 1, h0_compact, h1_compact, h0_compact_col, h1_compact_col);
         }
+        if (getHammingWeight(s, R_BITS) == 0){
+            printf( "%d\n", i );
+            return 0; // SUCCESS
+        }
     }
-    if (getHammingWeight(s, R_BITS) == 0)
-        return 0; // SUCCESS
-    else
-        return 1; // FAILURE
+    printf( "%d\n", NbIter + 1 );
+    return 1; // FAILURE
 }

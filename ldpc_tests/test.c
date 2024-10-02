@@ -4,8 +4,8 @@
 #include "measurements.h"
 #include "pthread.h"
 
-#define T_TEST 48000000
-#define NUM_THREADS 40
+#define T_TEST 48000
+#define NUM_THREADS 100
 
 void test_once(){
     sk_t sk    = {0};
