@@ -1,4 +1,5 @@
 import os
+import time
 
 # W_DECODER = 0  :  SP
 # W_DECODER = 1  :  MS
@@ -11,8 +12,11 @@ X = [0.0914770912009593, 0.09084042223745625, 0.09002519223018442, 0.08907420142
 
 s = "g++ -m64 -O3 ldpc_tests/test.c *.c ntl.cpp FromNIST/rng.c -I. -I/include -L/lib -std=c++11 -lcrypto -lssl -lm -ldl -lntl -lgmp -lgf2x -lpthread -DVERBOSE=0 -DNIST_RAND=1"
 
+begin_t = time.time()
 for i in range(0, len(r)):
     os.system("rm -f LDPC_test_spt1_{}".format(i))
     para = "-DR_BITS={}ULL -DDV={}ULL -DT1={}ULL -DW_DECODER={} -DTHR_X={}".format(r[i], w//2, t, 2, X[i])
     os.system("{} {} -o LDPC_test_spt1_{}".format(s, para, i))
     os.system("./LDPC_test_spt1_{} > output_sp1_t{}".format(i, i))
+    end_t = time.time()
+    print(end_t - begin_t)

@@ -4,3 +4,6 @@ LDPC_test*
 output*
 test_time_1
 test_time_2
+data*
+bgf_data*
+sp_data*

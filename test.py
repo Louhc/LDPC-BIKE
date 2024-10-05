@@ -3,8 +3,10 @@ import time
 
 w = 142
 t = 134
-r = 11923
-X = 0.07972288905502715
+# r = 10427
+# X = 0.07972288905502715
+r = 9547
+X = 0.13234455765248448
 
 s = "g++ -m64 -O3 ldpc_tests/test.c *.c ntl.cpp FromNIST/rng.c -I. -I/include -L/lib -std=c++11 -lcrypto -lssl -lm -ldl -lntl -lgmp -lgf2x -lpthread -DVERBOSE=0 -DNIST_RAND=1"
 

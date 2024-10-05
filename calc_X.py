@@ -1,9 +1,9 @@
-from math import comb
+from math import *
 from functools import lru_cache
 
 w = 142
 t = 134
-rr = [11239, 11273, 11317, 11369, 11423, 11471, 11503, 11579, 11621, 11689, 11731, 11789, 11827, 11867, 11923, 11953, 11987, 12043, 12101, 12143, 12197, 12241, 12277]
+rr = [9349,9547,9749,9803,9859,9883,9901,9907,9923,9941,9949,10037,10067,10069,10091,10093,10099,10133,10139,10141,10181, 10253, 10259]
 X = []
 
 @lru_cache(None)  # Cache the results of binomial coefficient calculations
@@ -21,7 +21,24 @@ def compute_sum_odd_l_optimized(n, t, w):
         X += term
     return X
 
+def VAR_TH_FCT( x, THR_X, T1, DV, N_BITS ):
+    pi1 = (x + THR_X) / T1 / DV
+    pi0 = (DV * 2 * x - THR_X) / (N_BITS - T1) / DV
+    # assert(pi1 >= pi0)
+    T = ceil((log((N_BITS - T1) / T1) + DV * log((1 - pi0) / (1 - pi1))) / (log(pi1 / pi0) + log((1 - pi0) / (1 - pi1))))
+    return max(T, (DV + 1) / 2.0)
+
+def f( x ):
+    return max(13.530 + 0.0069722 * (x), 36)
+
+
 for r in rr:
     X.append(compute_sum_odd_l_optimized(r * 2, t, w))
 
 print(X)
+
+# r = 9547
+# X = compute_sum_odd_l_optimized(r * 2, t, w)
+
+# for i in range(4500, 5000):
+#     print(f(i), VAR_TH_FCT(i, X, t, w // 2, r * 2))

@@ -3,9 +3,11 @@
 #include "utilities.h"
 #include "measurements.h"
 #include "pthread.h"
+#include "FromNIST/rng.h"
+#include <time.h>
 
-#define T_TEST 48000
-#define NUM_THREADS 100
+#define T_TEST 10000
+#define NUM_THREADS 128
 
 void test_once(){
     sk_t sk    = {0};
@@ -57,6 +59,15 @@ void* test(void *threadid) {
 }
 
 int main(){
+    unsigned char entropy_input[48];
+    unsigned char personalization_string[48];
+    time_t ti; time(&ti);
+    for ( int i = 0; i < 48; ++i ){
+        entropy_input[i] = (ti >> (i % 4 * 8)) & 0xff;
+    }
+    memset(personalization_string, 0x00, 48);
+    randombytes_init(entropy_input, personalization_string, 0);
+
     MSG("BIKE LDPC Test:\n");
 
     pthread_t threads[NUM_THREADS];
