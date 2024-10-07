@@ -6,7 +6,7 @@
 #include "FromNIST/rng.h"
 #include <time.h>
 
-#define T_TEST 1000
+#define T_TEST 10000
 
 void test_once(){
     sk_t sk    = {0};
@@ -25,7 +25,6 @@ void test_once(){
     }
 
     uint32_t dec_rc = 0;
-    
     res = static_cast<status_t>(crypto_kem_enc(ct.raw, k_enc.raw, pk.raw));
     if(res != SUCCESS)
     {
@@ -34,26 +33,13 @@ void test_once(){
     }
 
     dec_rc = crypto_kem_dec(k_dec.raw, ct.raw, sk.raw);
-    if (dec_rc != 0)
-    {
-        MSG("Decoding failed after %d code tests!\n", i);
-    }
-    else
-    {
-        if (safe_cmp(k_enc.raw, k_dec.raw, sizeof(k_dec)/sizeof(uint64_t)))
-        {
-            MSG("Success! decapsulated key is the same as encapsulated key!\n");
-        } else {
-            MSG("Failure! decapsulated key is NOT the same as encapsulated key!\n");
-        }
-    }
 }
 
 int main(){
-    unsigned char entropy_input[48] = INIT_SEED;
-    unsigned char personalization_string[48];
-    memset(personalization_string, 0x00, 48);
-    randombytes_init(entropy_input, personalization_string, 0);
+    // unsigned char entropy_input[48] = INIT_SEED;
+    // unsigned char personalization_string[48];
+    // memset(personalization_string, 0x00, 48);
+    // randombytes_init(entropy_input, personalization_string, 0);
 
     MSG("BIKE LDPC Test:\n");
 

@@ -11,7 +11,7 @@
 #include <string.h>
 #include <math.h>
 
-const int MAXITER = 10;
+const int MAXITER = 5;
 double error_prob = 1. * T1 / N_BITS;
 double error_prob_llr = log((1 - error_prob) / error_prob);
 
@@ -89,7 +89,7 @@ int SP_decoder(uint8_t e[R_BITS*2],
             return 0; // SUCCESS
         }
     }
-    printf("%d\n", T);
+    printf("101\n");
 
     return 1; // FAILURE
 }
@@ -192,6 +192,51 @@ int MS_decoder(uint8_t e[R_BITS*2],
         }
     }
 
-    printf("%d\n", T);
+    printf("101\n");
     return 1; // FAILURE
+}
+
+// Algorithm Hybrid
+int H_decoder(uint8_t e[R_BITS*2],
+    uint8_t s[R_BITS],
+    uint32_t h0_compact[DV],
+    uint32_t h1_compact[DV])
+{
+    memset(e, 0, R_BITS*2);
+    uint8_t ss[R_BITS];
+    memcpy(ss, s, R_BITS);
+
+    // computing the first column of each parity-check block:
+    uint32_t h0_compact_col[DV] = {0};
+    uint32_t h1_compact_col[DV] = {0};
+    getCol(h0_compact_col, h0_compact);
+    getCol(h1_compact_col, h1_compact);
+
+    uint8_t black[R_BITS*2] = {0};
+    uint8_t gray[R_BITS*2] = {0};
+
+    for (int i = 1; i <= NbIter; i++)
+    {
+        memset(black, 0, R_BITS*2);
+        memset(gray, 0, R_BITS*2);
+
+        uint32_t T = floor(VAR_TH_FCT(getHammingWeight(s, R_BITS)));
+
+        BFIter(e, black, gray, s, T, h0_compact, h1_compact, h0_compact_col, h1_compact_col);
+
+        if (i == 1)
+        {
+            BFMaskedIter(e, s, black, (DV+1)/2 + 1, h0_compact, h1_compact, h0_compact_col, h1_compact_col);
+            BFMaskedIter(e, s, gray, (DV+1)/2 + 1, h0_compact, h1_compact, h0_compact_col, h1_compact_col);
+        }
+        if (getHammingWeight(s, R_BITS) == 0){
+            printf( "%d\n", i + 5 );
+            return 0; // SUCCESS
+        }
+    }
+    uint8_t e1[R_BITS*2] = {0};
+    int t = SP_decoder(e1, ss, h0_compact, h1_compact);
+    for ( int i = 0; i < R_BITS * 2; ++i )
+        e[i] = e1[i];
+    return t;
 }

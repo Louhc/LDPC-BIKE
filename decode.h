@@ -60,4 +60,27 @@ int BGF_decoder(uint8_t e[R_BITS*2],
         uint32_t h0_compact[DV],
         uint32_t h1_compact[DV]);
 
+void BFIter(uint8_t e[R_BITS*2],
+    uint8_t black[R_BITS*2],
+    uint8_t gray[R_BITS*2],
+    uint8_t s[R_BITS],
+    uint32_t T,
+    uint32_t h0_compact[DV],
+    uint32_t h1_compact[DV],
+    uint32_t h0_compact_col[DV],
+    uint32_t h1_compact_col[DV]);
+
+void BFMaskedIter(uint8_t e[R_BITS*2],
+    uint8_t s[R_BITS],
+    uint8_t mask[R_BITS*2],
+    uint32_t T,
+    uint32_t h0_compact[DV],
+    uint32_t h1_compact[DV],
+    uint32_t h0_compact_col[DV],
+    uint32_t h1_compact_col[DV]);
+
+void getCol(
+    uint32_t h_compact_col[DV],
+    uint32_t h_compact_row[DV]);
+
 #endif //_R_DECAPS_H_

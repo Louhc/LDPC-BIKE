@@ -295,6 +295,6 @@ int BGF_decoder(uint8_t e[R_BITS*2],
             return 0; // SUCCESS
         }
     }
-    printf( "%d\n", NbIter + 1 );
+    printf( "101\n" );
     return 1; // FAILURE
 }

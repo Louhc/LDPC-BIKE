@@ -4,7 +4,7 @@ import threading
 from Crypto.Random import get_random_bytes
 from concurrent.futures import ThreadPoolExecutor
 
-dir = "bgf_data_9749_withnorandominitial_48m"
+dir = "hyb_data1_withrandominitial_10m"
 os.system(f"mkdir {dir}")
 
 def get_seed( len ):
@@ -22,7 +22,7 @@ s = "g++ -m64 -O3 ldpc_tests/test_singlethread.c *.c ntl.cpp FromNIST/rng.c -I. 
 
 def run_test( w, t, r, X, name ):
     os.system(f"rm -f LDPC_test_{name}")
-    para = f"-DR_BITS={r}ULL -DDV={w//2}ULL -DT1={t}ULL -DW_DECODER={2} -DTHR_X={X} "
+    para = f"-DR_BITS={r}ULL -DDV={w//2}ULL -DT1={t}ULL -DW_DECODER={-1} -DTHR_X={X} -DINIT_SEED='{get_seed(48)}'"
     os.system(f"{s} {para} -o LDPC_test_{name}")
     os.system(f"./LDPC_test_{name} > {dir}/output_{name}")
     os.system(f"rm -f LDPC_test_{name}")
@@ -35,10 +35,10 @@ X = [0.13861183391136014, 0.13234455765248448, 0.12633178399815584, 0.1247859500
 assert len(r) == len(X)
 
 Ntests = 10000
-T = 48000000
+T = 10000000
 th = []
 
-with ThreadPoolExecutor(max_workers = 20) as executor:
-    for i in range(2, 3):
+with ThreadPoolExecutor(max_workers = 200) as executor:
+    for i in range(2, len(r)):
         for j in range(0, T // Ntests):
-            executor.submit(run_test, w, t, r[i], X[i], f"bgf_g{i}_p{j}")
+            executor.submit(run_test, w, t, r[i], X[i], f"hyb_g{i}_p{j}")

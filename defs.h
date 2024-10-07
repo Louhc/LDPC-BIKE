@@ -68,7 +68,7 @@
 #undef PARAM128
 // Parameters for BGF Decoder:
 #define tau 3
-#define NbIter 10
+#define NbIter 5
 #define VAR_TH_FCT(x) (MAX(13.530 + 0.0069722 * (x), 36))
 #endif
 
