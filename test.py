@@ -19,19 +19,23 @@ dataset = {
         134,
         [12323],
         [909.0225315768487]),
+    2: (142,
+        134,
+        [9349],
+        [1295.8820352373061])
 }
 
 
 # -------P-A-N-E-L----------
-ALG         = "hyb"
-T_TEST      = 10000        # number of tests in a thread
-T           = 10000000     # number of total tests
+ALG         = "bf"
+T_TEST      = 1000        # number of tests in a thread
+T           = 1000     # number of total tests
 W_DATASET   = 1
 MAX_THREAD  = 200
-NbIter      = 10
+NbIter      = 100
 # --------------------------
 
-s = "g++ -m64 -O3 ldpc_tests/test_singlethread.c *.c ntl.cpp FromNIST/rng.c -I. -I/include -L/lib -std=c++11 -lcrypto -lssl -lm -ldl -lntl -lgmp -lgf2x -lpthread -DVERBOSE=0 -DNIST_RAND=1"
+s = "g++ -m64 -O3 ldpc_tests/test.c *.c ntl.cpp FromNIST/rng.c -I. -I/include -L/lib -std=c++11 -lcrypto -lssl -lm -ldl -lntl -lgmp -lgf2x -lpthread -DVERBOSE=0 -DNIST_RAND=1"
 dir = f"{ALG}_data{W_DATASET}_{num_map[T]}"
 
 def get_seed(len):
@@ -43,7 +47,7 @@ def get_seed(len):
 
 def run_test(w, t, r, X, name):
     os.system(f"rm -f LDPC_test_{name}")
-    para = f"-DR_BITS={r}ULL -DDV={w//2}ULL -DT1={t}ULL -DW_DECODER={alg_map[ALG]} -DNbIter={NbIter} -DTHR_X={X} -DINIT_SEED='{get_seed(48)}'"
+    para = f"-DR_BITS={r}ULL -DDV={w//2}ULL -DT1={t}ULL -DW_DECODER={alg_map[ALG]} -DNbIter={NbIter} -DTHR_X={X} -DT_TEST={T_TEST} -DINIT_SEED='{get_seed(48)}'"
     os.system(f"{s} {para} -o LDPC_test_{name}")
     os.system(f"./LDPC_test_{name} > {dir}/output_{name}")
     os.system(f"rm -f LDPC_test_{name}")
@@ -60,4 +64,4 @@ with ThreadPoolExecutor(max_workers = MAX_THREAD) as executor:
 end_t = time.time()
 
 print(f"Running time: {end_t - begin_t}")
-print(f"Number of tests per second: {T / (end_t - begin_t)}")
+print(f"Number of tests per second: {T * len(r) / (end_t - begin_t)}")

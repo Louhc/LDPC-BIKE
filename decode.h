@@ -93,4 +93,6 @@ void recompute_syndrome(uint8_t s[R_BITS],
         const uint32_t h0_compact[DV],
         const uint32_t h1_compact[DV]);
 
+void flipAdjustedErrorPosition(uint8_t e[R_BITS*2], uint32_t position);
+
 #endif //_R_DECAPS_H_

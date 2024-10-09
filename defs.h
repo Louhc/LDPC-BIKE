@@ -38,6 +38,9 @@
 #ifndef __DEFS_H_INCLUDED__
 #define __DEFS_H_INCLUDED__
 
+#include <assert.h>
+#include <math.h>
+
 ////////////////////////////////////////////
 //         BIKE main parameters
 ///////////////////////////////////////////
@@ -58,13 +61,6 @@
 
 // Parameters for BGF Decoder:
 #define tau 3
-inline double VAR_TH_FCT( int x ){
-    double pi1 = (x + THR_X) / T1 / DV;
-    double pi0 = (DV * 2 * x - THR_X) / (N_BITS - T1) / DV;
-    assert(pi1 >= pi0);
-    double T = ceil((log((N_BITS - T1) / T1) + DV * log((1 - pi0) / (1 - pi1))) / (log(pi1 / pi0) + log((1 - pi0) / (1 - pi1))));
-    return fmax(T, (DV + 1) / 2.0);
-}
 
 // Divide by the divider and round up to next integer:
 #define DIVIDE_AND_CEIL(x, divider)  ((x/divider) + (x % divider == 0 ? 0 : 1ULL))
@@ -75,6 +71,14 @@ inline double VAR_TH_FCT( int x ){
 #define R_SIZE   DIVIDE_AND_CEIL(R_BITS, 8ULL)
 #define N_SIZE   DIVIDE_AND_CEIL(N_BITS, 8ULL)
 #define R_DQWORDS DIVIDE_AND_CEIL(R_SIZE, 16ULL)
+
+inline double VAR_TH_FCT( int x ){
+    double pi1 = (x + THR_X) / T1 / DV;
+    double pi0 = (DV * 2 * x - THR_X) / (N_BITS - T1) / DV;
+    assert(pi1 >= pi0);
+    double T = ceil((log((N_BITS - T1) / T1) + DV * log((1 - pi0) / (1 - pi1))) / (log(pi1 / pi0) + log((1 - pi0) / (1 - pi1))));
+    return fmax(T, (DV + 1) / 2.0);
+}
 
 ////////////////////////////////////////////
 //             Debug
