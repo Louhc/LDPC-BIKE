@@ -11,7 +11,7 @@
 #include <string.h>
 #include <math.h>
 
-const int MAXITER = 5;
+const int MAXITER = NbIter;
 double error_prob = 1. * T1 / N_BITS;
 double error_prob_llr = log((1 - error_prob) / error_prob);
 
@@ -239,4 +239,88 @@ int H_decoder(uint8_t e[R_BITS*2],
     for ( int i = 0; i < R_BITS * 2; ++i )
         e[i] = e1[i];
     return t;
+}
+
+// Backflip
+
+const double alpha = 0.45, beta = 1.1;
+const int MAX_TTL = 5;
+double ttl(double delta){
+    return fmax(1, fmin(MAX_TTL, ceil(alpha * delta + beta)));
+}
+
+void BackflipIter(uint8_t e[R_BITS*2],
+    int D[R_BITS*2],
+    int time_stamp,
+    uint8_t s[R_BITS],
+    uint32_t T,
+    uint32_t h0_compact[DV],
+    uint32_t h1_compact[DV],
+    uint32_t h0_compact_col[DV],
+    uint32_t h1_compact_col[DV])
+{
+
+    uint8_t pos[R_BITS*2] = {0};
+
+    for (uint32_t j = 0; j < R_BITS; j++)
+    {
+        uint32_t counter = ctr(h0_compact_col, j, s);
+        if (counter >= T)
+        {
+            flipAdjustedErrorPosition(e, j);
+            pos[j] = 1; D[j] = time_stamp + ttl(counter - T);
+        }
+    }
+    for (uint32_t j = 0; j < R_BITS; j++)
+    {
+        uint32_t counter = ctr(h1_compact_col, j, s);
+
+        if (counter >= T)
+        {
+            flipAdjustedErrorPosition(e, R_BITS+j);
+            pos[R_BITS+j] = 1; D[R_BITS+j] = time_stamp + ttl(counter - T);
+        }
+    }
+
+    for(uint32_t j=0; j < 2*R_BITS; j++){
+        if(pos[j] == 1){
+            recompute_syndrome(s, j, h0_compact, h1_compact);
+        }
+    }
+}
+
+int Backflip_decoder(uint8_t e[R_BITS*2],
+    uint8_t s[R_BITS],
+    uint32_t h0_compact[DV],
+    uint32_t h1_compact[DV])
+{
+    memset(e, 0, R_BITS*2);
+
+    // computing the first column of each parity-check block:
+    uint32_t h0_compact_col[DV] = {0};
+    uint32_t h1_compact_col[DV] = {0};
+    getCol(h0_compact_col, h0_compact);
+    getCol(h1_compact_col, h1_compact);
+
+    int D[R_BITS*2] = {0};
+
+    for (int i = 1; i <= NbIter; i++)
+    {
+        for ( int j = 0; j < 2 * R_BITS; ++j ){
+            if ( D[j] == i ){
+                flipAdjustedErrorPosition(e, j);
+                recompute_syndrome(s, j, h0_compact, h1_compact);
+            }
+        }
+
+        uint32_t T = floor(VAR_TH_FCT(getHammingWeight(s, R_BITS)));
+        BackflipIter(e, D, i, s, T, h0_compact, h1_compact, h0_compact_col, h1_compact_col);
+        
+        if (getHammingWeight(s, R_BITS) == 0){
+            printf( "%d\n", i );
+            return 0; // SUCCESS
+        }
+    }
+    printf( "101\n" );
+    return 1; // FAILURE
 }

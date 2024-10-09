@@ -1,9 +1,13 @@
 from math import *
 from functools import lru_cache
 
-w = 142
-t = 134
-rr = [9349,9547,9749,9803,9859,9883,9901,9907,9923,9941,9949,10037,10067,10069,10091,10093,10099,10133,10139,10141,10181, 10253, 10259]
+# w = 142
+# t = 134
+w = 206
+t = 199
+rr = [19139, 19141, 19157, 19163, 19181, 19219, 19237, 19259, 19301, 19333, 19373, 19379, 19387, 19403, 19427, 19469, 19483, 19501, 19507,19541]
+# rr = [12323]
+# rr = [9349,9547,9749,9803,9859,9883,9901,9907,9923,9941,9949,10037,10067,10069,10091,10093,10099,10133,10139,10141,10181, 10253, 10259]
 X = []
 
 @lru_cache(None)  # Cache the results of binomial coefficient calculations
@@ -16,7 +20,7 @@ def compute_sum_odd_l_optimized(n, t, w):
     # Iterate over odd l from 1 to t
     for l in range(1, min(t, w) + 1, 2):
         if l > w: break  # If l is greater than w, comb(w, l) will be 0
-        numerator = (l - 1) * cached_comb(w, l) * cached_comb(n - w, t - l)
+        numerator = (l - 1) * (n // 2) * cached_comb(w, l) * cached_comb(n - w, t - l)
         term = numerator / total_comb_nt
         X += term
     return X

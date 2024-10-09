@@ -48,19 +48,6 @@
 #include <math.h>
 #include <assert.h>
 
-#ifndef VAR_TH_FCT
-#ifndef THR_X
-#define THR_X 0
-#endif
-double VAR_TH_FCT( int x ){
-    double pi1 = (x + THR_X) / T1 / DV;
-    double pi0 = (DV * 2 * x - THR_X) / (N_BITS - T1) / DV;
-    // assert(pi1 >= pi0);
-    double T = ceil((log((N_BITS - T1) / T1) + DV * log((1 - pi0) / (1 - pi1))) / (log(pi1 / pi0) + log((1 - pi0) / (1 - pi1))));
-    return fmax(T, (DV + 1) / 2.0);
-}
-#endif
-
 // count number of 1's in tmp:
 uint32_t getHammingWeight(const uint8_t tmp[R_BITS], const uint32_t length)
 {

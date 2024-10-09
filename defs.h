@@ -42,11 +42,6 @@
 //         BIKE main parameters
 ///////////////////////////////////////////
 
-// UNCOMMENT TO SELECT THE NIST SECURITY LEVEL 1, 3 OR 5:
-#define PARAM64 // NIST LEVEL 1
-// #define PARAM96 // NIST LEVEL 3
-// #define PARAM128 // NIST LEVEL 5
-
 // UNCOMMENT TO ENABLE BANDWIDTH OPTIMISATION FOR BIKE-3:
 //#define BANDWIDTH_OPTIMIZED
 
@@ -61,45 +56,15 @@
 // select the max between a and b:
 #define MAX(a,b) ((a)>(b))?(a):(b)
 
-// -DR_BITS=9349ULL -DDV=71ULL -DT1=134ULL
-#ifdef R_BITS
-#undef PARAM64
-#undef PARAM96
-#undef PARAM128
 // Parameters for BGF Decoder:
 #define tau 3
-#define NbIter 5
-#define VAR_TH_FCT(x) (MAX(13.530 + 0.0069722 * (x), 36))
-#endif
-
-// LEVEL-5 Security parameters:
-#ifdef PARAM128
-#define R_BITS 40973ULL
-#define DV     137ULL
-#define T1     264ULL
-#define VAR_TH_FCT(x) (MAX(17.8785 + 0.00402312 * (x), 69))
-// Parameters for BGF Decoder:
-#define tau 3
-#define NbIter 5
-// LEVEL-3 Security parameters:
-#elif defined(PARAM96)
-#define R_BITS 24659ULL
-#define DV     103ULL
-#define T1     199ULL
-#define VAR_TH_FCT(x) (MAX(15.2588 + 0.005265 * (x), 52))
-// Parameters for BGF Decoder:
-#define tau 3
-#define NbIter 5
-// LEVEL-1 security parameters:
-#elif defined(PARAM64)
-#define R_BITS 12323ULL
-#define DV     71ULL
-#define T1     134ULL
-#define VAR_TH_FCT(x) (MAX(13.530 + 0.0069722 * (x), 36))
-// Parameters for BGF Decoder:
-#define tau 3
-#define NbIter 5
-#endif
+inline double VAR_TH_FCT( int x ){
+    double pi1 = (x + THR_X) / T1 / DV;
+    double pi0 = (DV * 2 * x - THR_X) / (N_BITS - T1) / DV;
+    assert(pi1 >= pi0);
+    double T = ceil((log((N_BITS - T1) / T1) + DV * log((1 - pi0) / (1 - pi1))) / (log(pi1 / pi0) + log((1 - pi0) / (1 - pi1))));
+    return fmax(T, (DV + 1) / 2.0);
+}
 
 // Divide by the divider and round up to next integer:
 #define DIVIDE_AND_CEIL(x, divider)  ((x/divider) + (x % divider == 0 ? 0 : 1ULL))

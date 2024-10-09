@@ -6,8 +6,9 @@
 #include "FromNIST/rng.h"
 #include <time.h>
 
+#ifndef T_TEST
 #define T_TEST 10000
-#define NUM_THREADS 128
+#endif
 
 void test_once(){
     sk_t sk    = {0};
@@ -26,7 +27,6 @@ void test_once(){
     }
 
     uint32_t dec_rc = 0;
-    
     res = static_cast<status_t>(crypto_kem_enc(ct.raw, k_enc.raw, pk.raw));
     if(res != SUCCESS)
     {
@@ -35,52 +35,19 @@ void test_once(){
     }
 
     dec_rc = crypto_kem_dec(k_dec.raw, ct.raw, sk.raw);
-    if (dec_rc != 0)
-    {
-        MSG("Decoding failed after %d code tests!\n", i);
-    }
-    else
-    {
-        if (safe_cmp(k_enc.raw, k_dec.raw, sizeof(k_dec)/sizeof(uint64_t)))
-        {
-            MSG("Success! decapsulated key is the same as encapsulated key!\n");
-        } else {
-            MSG("Failure! decapsulated key is NOT the same as encapsulated key!\n");
-        }
-    }
-}
-
-void* test(void *threadid) {
-    int tid = (long)threadid;
-    for ( int i = 0; i * NUM_THREADS + tid < T_TEST; ++i ){
-        test_once();
-    }
-    pthread_exit(NULL);
 }
 
 int main(){
-    unsigned char entropy_input[48];
-    unsigned char personalization_string[48];
-    time_t ti; time(&ti);
-    for ( int i = 0; i < 48; ++i ){
-        entropy_input[i] = (ti >> (i % 4 * 8)) & 0xff;
-    }
-    memset(personalization_string, 0x00, 48);
-    randombytes_init(entropy_input, personalization_string, 0);
+    // unsigned char entropy_input[48] = INIT_SEED;
+    // unsigned char personalization_string[48];
+    // memset(personalization_string, 0x00, 48);
+    // randombytes_init(entropy_input, personalization_string, 0);
 
     MSG("BIKE LDPC Test:\n");
 
-    pthread_t threads[NUM_THREADS];
-
-    for ( int i = 0; i < NUM_THREADS; ++i ){
-        int rc = pthread_create(threads + i, NULL, test, (void *)((long)i));
-        if ( rc ){
-            printf( "ERROR: return code from pthread_create is %d\n", rc);
-            exit(-1);
-        }
+    for ( int i = 0; i < T_TEST; ++i ){
+        test_once();
     }
-
-    pthread_exit(NULL);
 
     return 0;
 }

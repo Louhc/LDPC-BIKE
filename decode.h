@@ -83,4 +83,14 @@ void getCol(
     uint32_t h_compact_col[DV],
     uint32_t h_compact_row[DV]);
 
+uint32_t ctr(
+        uint32_t h_compact_col[DV],
+        int position,
+        uint8_t s[R_BITS]);
+
+void recompute_syndrome(uint8_t s[R_BITS],
+        const uint32_t pos,
+        const uint32_t h0_compact[DV],
+        const uint32_t h1_compact[DV]);
+
 #endif //_R_DECAPS_H_
