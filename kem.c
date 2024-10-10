@@ -299,17 +299,17 @@ int crypto_kem_dec(OUT unsigned char *ss,
 
     // Step 2. decoding:
     DMSG("  Decoding.\n");
-#ifndef W_DECODER
-    rc = SP_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
-#else
     if ( W_DECODER == 0 )
         rc = SP_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
     else if ( W_DECODER == 1 )
         rc = MS_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
     else if ( W_DECODER == -1 )
         rc = H_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
-    else rc = BGF_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
-#endif
+    else if ( W_DECODER == 2 )
+	rc = BGF_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
+    else if ( W_DECODER == 3 )
+	rc = Backflip_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
+    else fprintf(stderr, "DECODER ERROR\n");
     convertBinaryToByte(e_prime, e_tmp1, 2*R_BITS);
 
     // Step 3. compute L(e0 || e1)

@@ -38,10 +38,10 @@ void test_once(){
 }
 
 int main(){
-    // unsigned char entropy_input[48] = INIT_SEED;
-    // unsigned char personalization_string[48];
-    // memset(personalization_string, 0x00, 48);
-    // randombytes_init(entropy_input, personalization_string, 0);
+    unsigned char entropy_input[48] = INIT_SEED;
+    unsigned char personalization_string[48];
+    memset(personalization_string, 0x00, 48);
+    randombytes_init(entropy_input, personalization_string, 0);
 
     MSG("BIKE LDPC Test:\n");
 
