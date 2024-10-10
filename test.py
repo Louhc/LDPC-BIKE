@@ -58,7 +58,7 @@ w, t, r, X = dataset[W_DATASET]
 
 begin_t = time.time()
 with ThreadPoolExecutor(max_workers = MAX_THREAD) as executor:
-    for i in range(2, len(r)):
+    for i in range(0, len(r)):
         for j in range(0, T // T_TEST):
             executor.submit(run_test, w, t, r[i], X[i], f"{ALG}_g{i}_p{j}")
 end_t = time.time()
