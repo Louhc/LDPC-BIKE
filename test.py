@@ -4,7 +4,7 @@ import threading
 from Crypto.Random import get_random_bytes
 from concurrent.futures import ThreadPoolExecutor
 
-alg_map = {'hyb': -1, 'sp': 0, 'ms': 1, 'bgf': 2, 'bf': 3}
+alg_map = {'hyb': -1, 'sp': 0, 'ms': 1, 'bgf': 2, 'bf': 3, 'admm': 4}
 num_map = {1: '1', 10: '10', 100: '100', 1000: '1k', 10000: '10k', 100000: '100k', 1000000: '1m', 10000000: '10m', 100000000: '100m', 48000000: '48m'}
 dataset = {
     1: (142, 
@@ -27,10 +27,10 @@ dataset = {
 
 
 # -------P-A-N-E-L----------
-ALG         = "bf"
-T_TEST      = 10000        # number of tests in a thread
-T           = 48000000     # number of total tests
-W_DATASET   = 1
+ALG         = "admm"
+T_TEST      = 100        # number of tests in a thread
+T           = 100     # number of total tests
+W_DATASET   = 0
 MAX_THREAD  = 200
 NbIter      = 100
 # --------------------------

@@ -43,6 +43,7 @@
 #include "ntl.h"
 #include "decode.h"
 #include "ext_decoder.h"
+#include "admm_decoder.h"
 #include "sampling.h"
 #include "kem.h"
 #include "conversions.h"
@@ -306,9 +307,11 @@ int crypto_kem_dec(OUT unsigned char *ss,
     else if ( W_DECODER == -1 )
         rc = H_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
     else if ( W_DECODER == 2 )
-	rc = BGF_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
+        rc = BGF_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
     else if ( W_DECODER == 3 )
-	rc = Backflip_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
+        rc = Backflip_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
+    else if ( W_DECODER == 4 )
+        rc = ADMM__decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
     else fprintf(stderr, "DECODER ERROR\n");
     convertBinaryToByte(e_prime, e_tmp1, 2*R_BITS);
 
