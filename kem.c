@@ -311,7 +311,7 @@ int crypto_kem_dec(OUT unsigned char *ss,
     else if ( W_DECODER == 3 )
         rc = Backflip_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
     else if ( W_DECODER == 4 )
-        rc = ADMM__decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
+        rc = ADMM_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
     else fprintf(stderr, "DECODER ERROR\n");
     convertBinaryToByte(e_prime, e_tmp1, 2*R_BITS);
 

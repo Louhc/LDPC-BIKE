@@ -2,6 +2,7 @@
 #include "decode.h"
 #include "utilities.h"
 #include "admm_decoder.h"
+#include "ntl.h"
 
 #include "kem.h"
 #include "sampling.h"
@@ -12,9 +13,12 @@
 #include <string.h>
 #include <math.h>
 
+#define double float
+
 const int MU = 6, ALPHA2 = 15;
-const int dc = DV * 2, dv = DV;
-const int ITRN = 10000
+const int dc = DV * 2, dv = DV, ERRN = T1;
+const int n = R_BITS * 2, m = R_BITS;
+const int ITRN = NbIter;
 
 void makeObj(double *Obj, double *receivedword, double sigma, int n){
    int j;
@@ -60,15 +64,12 @@ int abs_(int x){
   }     
 }
 
-int MemberQ(int j, int i){
-  int k;
-  for(k=0;k<dc;k++){
-    //printf("%d ",Pj[i][k]);
-    if(j==Pj[i][k]){
-      return(k);
-    }
-  }
-  return(-1);
+int MemberQ(int Pj[m][dc], int j, int i){
+    int k;
+    for ( k = 0; k < dc; k++ )
+        if ( j == Pj[i][k] )
+            return k;
+    return -1;
 }
 
 void quicksort(int first, int last, int *idx, double *dat)
@@ -107,11 +108,11 @@ void quicksort_dec(int first, int last, int *idx, double *dat)
   if (j + 1 < last) quicksort_dec(j + 1, last, idx, dat);
 }
 
-int proj(double **v, double *z, int row){
+int proj(double v[m][dc], double *z, int row){
   int i,j,k,beta_max,r,posi,L,R,M,plus;
   double tmp, frz, frz_pre, frzero, beta_opt, z_zero_sum;
   
-  double z_hat[dc], fr[dc], Beta_Set[dc * 4], idx_p[dc * 4];
+  double z_hat[dc], fr[dc], Beta_Set[dc * 4]; int idx_p[dc * 4];
 
   /* r */
   tmp = 0;
@@ -242,49 +243,37 @@ int ADMM_decoder(uint8_t e[R_BITS*2],
     uint32_t h0_compact[DV],
     uint32_t h1_compact[DV])
 {
-    const int n = R_BITS * 2, m = R_BITS;
-
     int i,j,k, itr_num=1, err, posit;
-    double **v, **z, **lambda;
+    double v[m][dc], z[m][dc], lambda[m][dc];
     double tmp, tmp2, prev=0;
-    int *idx, *iidx;
-    double *v_tmp, *z_tmp;
-    z = (double **)malloc(m*sizeof(double *));
-    for(i = 0; i < m; i++) z[i] = (double *)calloc(dc,sizeof(double));
-    lambda = (double **)malloc(m*sizeof(double *));
-    for(i = 0; i < m; i++) lambda[i] = (double *)calloc(dc,sizeof(double));
-    v = (double **)malloc(m*sizeof(double *));
-    for(i = 0; i < m; i++) v[i] = (double *)calloc(dc,sizeof(double));
-    idx = (int *)calloc(dc,sizeof(int));
-    iidx = (int *)calloc(dc,sizeof(int));
-    v_tmp = (double *)calloc(dc,sizeof(double));
-    z_tmp = (double *)calloc(dc,sizeof(double));
-    double *admmsol; int *admmbin_sol;
-    admmsol = (double *)malloc(n*sizeof(double));
-    admmbin_sol = (int *)malloc(n*sizeof(int));
-    double *Obj, *receivedword; double sigma = 0;
-    Obj = (double *)malloc(n*sizeof(double));
-    receivedword = (double *)malloc(n*sizeof(double));
-    for ( i = 0; i < n; ++i ) receivedword[i] = 0;
-    makeObj(Obj, receivedword, sigma, n);
-    int **Pj, **POS;
-    Pj = (int **)malloc(m * sizeof(int*));
-    for ( i = 0; i < m; ++i ) Pj[i] = (int *)calloc(dc, sizeof(int));
-    POS = (int **)malloc(m * sizeof(int*));
-    for ( i = 0; i < m; ++i ) POS[i] = (int *)calloc(dc, sizeof(int));
+    int idx[dc], iidx[dc];
+    double v_tmp[dc], z_tmp[dc];
+    double admmsol[n]; int admmbin_sol[n];
+    double Obj[n], receivedword[n]; double sigma = 0;
+    int Pj[m][dc], POS[n][dc];
+    uint8_t h0[R_SIZE] = {0}, inv_h0[R_SIZE] = {0}, y0[R_SIZE] = {0}, ss[R_SIZE] = {0}, y0b[R_BITS] = {0};
     
-    for ( int i = 0; i < R_BITS; ++i ){
-        for ( int j = 0; j < DV; ++j ){
-            Pj[i][j] = (R_BITS - (h0_compact[j] + i) % R_BITS) % R_BITS;
-            Pj[i][j + DV] = (R_BITS - (h1_compact[j] + i) % R_BITS) % R_BITS + R_BITS;
+    for ( i = 0; i < DV; ++i ) h0[h0_compact[i] >> 3] |= ((uint8_t)1) << (h0_compact[i] & 7);
+    convertBinaryToByte(ss, s, R_BITS); ntl_mod_inv(inv_h0, h0); ntl_mod_mul(y0, ss, inv_h0);
+    convertByteToBinary(y0b, y0, R_BITS);
+    for ( i = 0; i < R_BITS; ++i ) receivedword[i] = y0b[i];
+    for ( i = R_BITS; i < n; ++i ) receivedword[i] = 0;
+    makeObj(Obj, receivedword, sigma, n);
+
+    for ( i = 0; i < R_BITS; ++i ){
+        for ( j = 0; j < DV; ++j ){
+            Pj[i][j] = (R_BITS - h0_compact[j] + i) % R_BITS;
+            Pj[i][j + DV] = (R_BITS - h1_compact[j] + i) % R_BITS + R_BITS;
         }
     }
+
     for ( int i1 = 0; i1 < n; i1++ ){
         int i2 = 0;
         for ( i = 0; i < m; i++ ){
-            if(MemberQ(i1,i)>=0){
+            int mq = MemberQ(Pj, i1, i);
+            if ( mq >= 0 ){
                 POS[i1][i2] = i;
-                POS[i1][i2+1] = MemberQ(i1,i);
+                POS[i1][i2 + 1] = mq;
                 i2 = i2 + 2;
             }
         }
@@ -293,18 +282,19 @@ int ADMM_decoder(uint8_t e[R_BITS*2],
     for ( i = 0; i < m; ++i ){
         for ( k = 0; k < dc; ++k ){
             lambda[i][k] = 0;
-            z[i][k] = 0; // !
+            z[i][k] = receivedword[Pj[i][k]];
         }
     }
 
     while (itr_num <= ITRN){
+
         for ( j = 0; j < n; ++j ){
             tmp = 0;
             for ( i = 0; i < 2 * dv; i += 2 ){
                 tmp += z[POS[j][i]][POS[j][i+1]]-(1/((double)MU))*lambda[POS[j][i]][POS[j][i+1]];
             }
 
-            tmp = (tmp - (1/((double)MU))*(Obj[j]+ALPHA2))/(double)(Nv[j]-2*ALPHA2/(double)MU);
+            tmp = (tmp - (1/((double)MU))*(Obj[j]+ALPHA2))/(double)(dc-2*ALPHA2/(double)MU);
             admmsol[j]= cutoff(tmp);
         }
 
@@ -352,18 +342,10 @@ int ADMM_decoder(uint8_t e[R_BITS*2],
         }
 
         if ( total == 0 ){
-            for(i = 0; i < m; i++){free(z[i]), free(lambda[i]), free(v[i]);}
-            free(z),free(lambda), free(v);
-            free(idx), free(iidx), free(v_tmp), free(z_tmp), free(admmsol), free(admmbin_sol);
             printf("%d\n", itr_num);
             return 0;
         }
-
     }
-
-    for(i = 0; i < m; i++){free(z[i]), free(lambda[i]), free(v[i]);}
-    free(z),free(lambda), free(v);
-    free(idx), free(iidx), free(v_tmp), free(z_tmp), free(admmsol), free(admmbin_sol);
     printf("%d\n", ITRN + 1);
     return 1; // FAILURE
 }

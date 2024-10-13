@@ -22,17 +22,22 @@ dataset = {
     2: (142,
         134,
         [9349],
-        [1295.8820352373061])
+        [1295.8820352373061]),
+    "toy": (2,
+            2,
+            [257],
+            [111]
+    )
 }
 
 
 # -------P-A-N-E-L----------
 ALG         = "admm"
-T_TEST      = 100        # number of tests in a thread
-T           = 100     # number of total tests
-W_DATASET   = 0
-MAX_THREAD  = 200
-NbIter      = 100
+T_TEST      = 10        # number of tests in a thread
+T           = 1000     # number of total tests
+W_DATASET   = 2
+MAX_THREAD  = 100
+NbIter      = 10
 # --------------------------
 
 s = "g++ -m64 -O3 ldpc_tests/test.c *.c ntl.cpp FromNIST/rng.c -I. -I/include -L/lib -std=c++11 -lcrypto -lssl -lm -ldl -lntl -lgmp -lgf2x -lpthread -DVERBOSE=0 -DNIST_RAND=1"
