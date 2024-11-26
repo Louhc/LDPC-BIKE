@@ -10,7 +10,7 @@
 # which means that every keygen, encaps and decaps is repeated 100 times and the number of cycles is averaged.
 
 # Verbose levels: 0, 1, 2 or 3
-VERBOSE=0
+VERBOSE=2
 
 CC:=g++
 CFLAGS:=-m64 -O3

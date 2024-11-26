@@ -190,6 +190,8 @@ int crypto_kem_keypair(OUT unsigned char *pk, OUT unsigned char *sk)
     return res;
 }
 
+uint8_t err[N_SIZE];
+
 //Encapsulate - pk is the public key,
 //              ct is a key encapsulation message (ciphertext),
 //              ss is the shared secret.
@@ -219,6 +221,7 @@ int crypto_kem_enc(OUT unsigned char *ct,
     uint8_t e[N_SIZE] = {0};
     uint8_t e0[R_SIZE] = {0};
     uint8_t e1[R_SIZE] = {0};
+    // uint8_t ee[N_BITS] = {0};
 
     // temporary buffer:
     uint8_t tmp[ELL_SIZE] = {0};
@@ -229,6 +232,8 @@ int crypto_kem_enc(OUT unsigned char *ct,
     // (e0, e1) = H(m)
     functionH(e, m);
     ntl_split_polynomial(e0, e1, e);
+    
+    memcpy(err, e, sizeof e);
 
     // ct = (c0, c1) = (e0 + e1*h, L(e0, e1) \XOR m)
     ntl_mod_mul(l_ct->val0, e1, l_pk->val);
@@ -270,6 +275,7 @@ int crypto_kem_dec(OUT unsigned char *ss,
     double_seed_t seeds = {0};
   
     uint8_t e_recomputed[N_SIZE] = {0};
+    uint8_t e_recomputed2[N_BITS] = {0};
 
     uint8_t Le0e1[ELL_SIZE + 2*R_SIZE] = {0};
     uint8_t m_prime[ELL_SIZE] = {0};
@@ -299,6 +305,8 @@ int crypto_kem_dec(OUT unsigned char *ss,
     res = compute_syndrome(&syndrome, l_ct, l_sk); CHECK_STATUS(res);
 
     // Step 2. decoding:
+    // double ti;
+    // ti = getETime();
     DMSG("  Decoding.\n");
     if ( W_DECODER == 0 )
         rc = SP_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
@@ -312,8 +320,15 @@ int crypto_kem_dec(OUT unsigned char *ss,
         rc = Backflip_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
     else if ( W_DECODER == 4 )
         rc = ADMM_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
+    else if ( W_DECODER == 5 )
+        rc = nBF_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
+    else if ( W_DECODER == 6 )
+        rc = AAVN_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
+    else if ( W_DECODER == 7 )
+        rc = RSP_decoder(e_tmp1, syndrome.raw, h0_compact, h1_compact);
     else fprintf(stderr, "DECODER ERROR\n");
     convertBinaryToByte(e_prime, e_tmp1, 2*R_BITS);
+    // fprintf(stderr, "Using time: %lf\n", getETime() - ti);
 
     // Step 3. compute L(e0 || e1)
     functionL(Le0e1, e_prime);
@@ -331,12 +346,24 @@ int crypto_kem_dec(OUT unsigned char *ss,
     {
         DMSG("recomputed error vector does not match decoded error vector\n");
         failed = 1;
-    }
+    } 
 
     // Step 6. compute shared secret k = K()
     if (failed) {
+        printf("FAIL!!!\n");
+        // uint8_t err0[N_BITS] = {0};
+        // convertByteToBinary(err0, err, N_BITS);
+        // int tot = 0;
+        // for ( int i = 0; i < N_BITS; ++i ){
+        //     tot += err0[i] ^ e_tmp1[i];
+        //     if ( e_tmp1[i] ){
+        //         printf( "%d ", i);
+        //     }
+        // } printf("\n");
+        // printf( "err num : %d\n", tot );
         // shared secret = K(sigma || c0 || c1)
-        functionK(l_ss->raw, l_sk->sigma, l_ct->val0, l_ct->val1);
+        functionK(l_ss->raw, l_sk->sigma, l_ct->val0, l_ct->val1); fflush(stdout);
+        // exit(0);
     }
     else
     {

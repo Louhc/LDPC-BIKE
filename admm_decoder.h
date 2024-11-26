@@ -9,4 +9,6 @@ int ADMM_decoder(uint8_t e[R_BITS*2],
         uint32_t h0_compact[DV],
         uint32_t h1_compact[DV]);
 
+double getETime();
+
 #endif

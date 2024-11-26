@@ -1,7 +1,7 @@
 from math import *
 from scipy import integrate # type: ignore
 
-alpha = 1.58
+alpha = 1.1
 k = 1
 T = 10000
 X = 3
@@ -15,13 +15,15 @@ def calc( x, T, alpha ):
     res = integrate.quad(f, lower_bound, upper_bound, (x, T))
     return res
 
-l = 1
-r = 20
-for i in range(100):
-    mid = (l + r) / 2
-    s = calc(X, T, mid)[0]
-    if  s < 0.99:
-        l = mid
-    else:
-        r = mid
-print(l, r)
+print(calc(89, 10000, 1.5)[0])
+
+# l = 1
+# r = 20
+# for i in range(100):
+#     mid = (l + r) / 2
+#     s = calc(X, T, mid)[0]
+#     if  s < 0.99:
+#         l = mid
+#     else:
+#         r = mid
+# print(l, r)

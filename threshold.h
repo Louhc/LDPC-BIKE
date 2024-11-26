@@ -35,69 +35,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  ******************************************************************************/
 
-
-#ifndef _R_DECAPS_H_
-#define _R_DECAPS_H_
-
-#include "types.h"
-#include "conversions.h"
-
-// transpose a row into a column:
-_INLINE_ void transpose(uint8_t col[R_BITS], uint8_t row[R_BITS])
-{
-    col[0] = row[0];
-    for (uint64_t i = 1; i < R_BITS ; ++i)
-    {
-        col[i] = row[(R_BITS) - i];
-    }
-}
-
-// Count number of 1's in tmp:
-uint32_t getHammingWeight(const uint8_t tmp[R_BITS], const uint32_t length);
-
-int BGF_decoder(uint8_t e[R_BITS*2],
-        uint8_t s[R_BITS],
-        uint32_t h0_compact[DV],
-        uint32_t h1_compact[DV]);
-
-int nBF_decoder(uint8_t e[R_BITS*2],
-        uint8_t s[R_BITS],
-        uint32_t h0_compact[DV],
-        uint32_t h1_compact[DV]);
-
-void BFIter(uint8_t e[R_BITS*2],
-    uint8_t black[R_BITS*2],
-    uint8_t gray[R_BITS*2],
-    uint8_t s[R_BITS],
-    uint32_t T,
-    uint32_t h0_compact[DV],
-    uint32_t h1_compact[DV],
-    uint32_t h0_compact_col[DV],
-    uint32_t h1_compact_col[DV]);
-
-void BFMaskedIter(uint8_t e[R_BITS*2],
-    uint8_t s[R_BITS],
-    uint8_t mask[R_BITS*2],
-    uint32_t T,
-    uint32_t h0_compact[DV],
-    uint32_t h1_compact[DV],
-    uint32_t h0_compact_col[DV],
-    uint32_t h1_compact_col[DV]);
-
-void getCol(
-    uint32_t h_compact_col[DV],
-    uint32_t h_compact_row[DV]);
-
-uint32_t ctr(
-        uint32_t h_compact_col[DV],
-        int position,
-        uint8_t s[R_BITS]);
-
-void recompute_syndrome(uint8_t s[R_BITS],
-        const uint32_t pos,
-        const uint32_t h0_compact[DV],
-        const uint32_t h1_compact[DV]);
-
-void flipAdjustedErrorPosition(uint8_t e[R_BITS*2], uint32_t position);
-
-#endif //_R_DECAPS_H_
+#ifndef THRESHOLD_H
+#define THRESHOLD_H
+#include <stddef.h>
+size_t compute_threshold(size_t r, size_t n, size_t d, size_t w, size_t S,
+                         size_t t);
+#endif

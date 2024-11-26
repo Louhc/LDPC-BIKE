@@ -285,3 +285,102 @@ int BGF_decoder(uint8_t e[R_BITS*2],
     printf( "101\n" );
     return 1; // FAILURE
 }
+
+// ---------------------------------------------
+
+#define NEW_VAR_TH_FCT(x) (11.094 + 0.006258 * (x))
+#define delta 3
+
+double threshold(int i, const uint8_t s[R_BITS], const uint8_t s_tilte[R_BITS]){
+    uint32_t T_prime = floor(VAR_TH_FCT(getHammingWeight(s, R_BITS)));
+    uint32_t M = (DV + 1)/2;
+    uint32_t T;
+    if ( i==1 ){
+        T = floor(T_prime + delta);
+    }
+    if ( i==2 ){
+        T = floor(2*T_prime + M)/3 + delta;
+    }
+    if ( i==3 ){
+        T = floor(T_prime + 2*M)/3 + delta;
+    }
+    if ( i>=4 ){
+        T = M + delta;
+    }
+
+    return MAX(VAR_TH_FCT(getHammingWeight(s_tilte, R_BITS)), T);
+}
+
+void nBFIter(uint8_t e[R_BITS*2],
+    uint8_t s[R_BITS],
+    uint8_t s_tilte[R_BITS],
+    int i,
+    uint32_t h0_compact[DV],
+    uint32_t h1_compact[DV],
+    uint32_t h0_compact_col[DV],
+    uint32_t h1_compact_col[DV])
+{
+
+    uint8_t pos[R_BITS*2] = {0};
+
+    uint32_t T = floor(threshold(i,s,s_tilte));
+
+    for (uint32_t j = 0; j < R_BITS; j++)
+    {
+        uint32_t counter = ctr(h0_compact_col, j, s_tilte);
+        // if ( j < 10 ) printf( "..  %d\n", counter);
+        if (counter >= T)
+        {
+            flipAdjustedErrorPosition(e, j);
+            pos[j] = 1;
+        } 
+    }//printf("\n");
+    for (uint32_t j = 0; j < R_BITS; j++)
+    {
+        uint32_t counter = ctr(h1_compact_col, j, s_tilte);
+
+        if (counter >= T)
+        {
+            flipAdjustedErrorPosition(e, R_BITS+j);
+            pos[R_BITS+j] = 1;
+        } 
+
+    }
+
+    // flip bits at the end
+    for(uint32_t j=0; j < 2*R_BITS; j++){
+        if(pos[j] == 1){
+            recompute_syndrome(s_tilte, j, h0_compact, h1_compact);
+        }
+    }
+}
+int nBF_decoder(uint8_t e[R_BITS*2],
+    uint8_t s[R_BITS],
+    uint32_t h0_compact[DV],
+    uint32_t h1_compact[DV])
+{
+    memset(e, 0, R_BITS*2);
+
+    uint8_t s_initial[R_BITS] = {0};
+    for (int i = 0; i < R_BITS; i++){
+        s_initial[i] = s[i];
+    }
+
+    // computing the first column of each parity-check block:
+    uint32_t h0_compact_col[DV] = {0};
+    uint32_t h1_compact_col[DV] = {0};
+    getCol(h0_compact_col, h0_compact);
+    getCol(h1_compact_col, h1_compact);
+
+    for (int i = 1; i <= NbIter; i++)
+    {
+        nBFIter(e, s_initial, s, i, h0_compact, h1_compact, h0_compact_col, h1_compact_col);
+
+        if (getHammingWeight(s, R_BITS) == 0){
+            printf( "%d\n", i );
+            return 0; // SUCCESS
+        } //printf( "   %d\n", getHammingWeight(s, R_BITS));
+    }
+    printf( "%d\n", NbIter + 1 );
+    return 1; // FAILURE
+}
