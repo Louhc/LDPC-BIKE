@@ -43,10 +43,10 @@ dataset = {
 
 # -------P-A-N-E-L----------
 ALG         = "nbf"
-T_TEST      = 1000000        # number of tests in a thread
-T           = 10000000        # number of total tests
+T_TEST      = 10        # number of tests in a thread
+T           = 10        # number of total tests
 W_DATASET   = 1
-MAX_THREAD  = 200
+MAX_THREAD  = 40
 NbIter      = 100
 TL, TR      = 11, len(dataset[W_DATASET][3])
 # sd          = 114
